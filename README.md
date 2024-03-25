@@ -1,34 +1,34 @@
-# GhostAI - Versatile Trainable Model
+# Local Version of GhostAI
 
-GhostAI is a versatile trainable model based on Google Gemini.
+This is a local version of GhostAI.
 
-## Training Your Own AI
+To run it, you have two options:
 
-### Steps:
+## Option 1: Download the Executable
+Download the `.exe` provided in the releases or from this link: [GhostAI Server Releases](https://github.com/The-UnknownHacker/GhostAI-Server/releases)
 
-1. **Fork or Clone Repository:**
-   - Fork this repository into your account or clone it to your desktop using:
+## Option 2: Run with Python
+
+1. **Install Python:**
+   - Download and install Python from [python.org](https://python.org).
+
+2. **Install Requirements:**
+   - Open your terminal or command prompt.
+   - Change directory (`cd`) into the GhostAI project directory.
+   - Execute the following command:
      ```bash
-     git clone https://github.com/CyberZenDev/GhostAI/
+     pip install -r requirements.txt
      ```
 
-2. **Update API Key:**
-   - Access the files and go to `app.py`.
-   - Find the `api_key_enc` variable
-   - Change the API key to your own, obtainable at [Google Makersuite](https://makersuite.google.com/app/apikey).
+3. **Run the Application:**
+   - Start the application with Python by running one of these commands, depending on your Python installation:
+     ```bash
+     python3 app.py
+     ```
+     or
+     ```bash
+     python app.py
+     ```
 
-3. **Create and Train in Google Studio:**
-   - In Google Studio, create a new project and a text model (Google Gemini Pro).
-   - Train the AI until you are satisfied and click the "Get Code" button on the top right.
-
-4. **Copy and Replace `convo` Variable:**
-   - Click on Python and scroll down to find the `convo` variable.
-   - Copy the `convo` variable and head to `training_data.py`. Replace the existing `convo` variable with your copied variable.
-
-5. **Deploy Your AI:**
-   - Success! Your AI is now trained.
-   - Head over to [Cyclic.sh](https://cyclic.sh/) or click the button below and deploy it!
-
-## Deploy to Cyclic
-
-[![Deploy to Cyclic](https://deploy.cyclic.sh/button.svg)](https://deploy.cyclic.sh/)
+4. **Access the Application:**
+   - Navigate to `yourip:5000`, `localhost:5000`, or `127.0.0.1:5000` in your web browser to access the application.
