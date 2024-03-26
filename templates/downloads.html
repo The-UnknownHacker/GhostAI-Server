@@ -54,10 +54,44 @@
             font-size: 32px;
             margin-right: 10px;
         }
+
+        /* Style for the home button */
+        #home-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #ffffff;
+            text-decoration: none;
+            background-color: #4285F4;
+            border: none;
+            border-radius: 50%;
+            width: 40px; /* Set width and height to make it a circle */
+            height: 40px; /* Set width and height to make it a circle */
+            padding: 0; /* Remove padding to allow the icon to fill the circle */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #home-icon {
+            font-size: 24px; /* Set font size to fill the circle */
+        }
+
+
+
+        #home-button:hover {
+            background-color: #3367d6;
+        }
+
+
     </style>
 </head>
 
 <body>
+    <!-- Home button -->
+    <a id="home-button" href="/"><span id="home-icon">&#8962;</span></a>
+
     <h1>Download Ghost AI</h1>
 
     <ul>
