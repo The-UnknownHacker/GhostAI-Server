@@ -79,6 +79,32 @@
             display: none;
         }
 
+        .section-divider {
+            width: 100%;
+            margin: 20px 0;
+            border-bottom: 1px solid #4285F4;
+        }
+
+        .section-text {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .download-button {
+            background-color: #4285F4;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .download-button:hover {
+            background-color: #3367d6;
+        }
     </style>
 </head>
 
@@ -86,10 +112,24 @@
     <a href="/" class="home-button">Home</a>
     <h1>Settings</h1>
 
-    <!-- Add your settings here -->
+    <!-- Custom API Key Section -->
     <label for="api-key">Custom API Key:</label>
     <input type="text" id="api-key" placeholder="Enter your API Key">
     <button onclick="saveApiKey()">Save</button>
+
+    <!-- Section Divider -->
+    <div class="section-divider"></div>
+
+    <!-- Download GhostAI Section -->
+    <div class="section-text">Download GhostAI</div>
+    <div class="section-text">Supported Platforms</div>
+    <ul class="section-text">
+        <li>Windows</li>
+        <li>MacOS</li>
+        <li>Android</li>
+    </ul>
+    <div class="section-text">Please note GhostAI doesn't support iOS or Linux just yet but will be coming soon</div>
+    <a href="/download" class="download-button">Download</a>
 
     <!-- Added div for success message -->
     <div id="success-message">API key saved successfully</div>
