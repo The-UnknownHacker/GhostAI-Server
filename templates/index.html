@@ -184,6 +184,17 @@
             color: white;
             text-decoration: none;
         }
+        .code-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+            /* Other styling for the button */
+        }
     </style>
 
     <script>
@@ -203,12 +214,29 @@
             var messageElement = document.createElement('div');
 
             if (isAI) {
-                messageElement.classList.add('ai-response');
-            }
+                // Extract Python code block, but keep other text
+                message = message.replace(/```python\n([\s\S]*?)\n```/, function(match, code) {
+                    return `<div style="position: relative;">
+                            <div class="code-block"><pre><code>${code}</code></pre></div>
+                            <button class="copy-button" style="position: absolute; top: 0; right: 0;" onclick="copyCode(this)">Copy</button>
+                            </div>`;
+                });
 
-            messageElement.innerHTML = '<strong>' + sender + ':</strong> ' + parseBoldText(parseNumberedList(parseFullStops(message)));
+
+                // Extract generic code block (without copy button), but keep other text
+                message = message.replace(/```([\s\S]*?)```/, function(match, code) {
+                    return `<div class="code-block"><pre><code>${code}</code></pre></div>`;
+                });
+            }
+            
+            messageElement.innerHTML = '<strong>' + sender + ':</strong><br><br>' + message;
             chatDisplay.appendChild(messageElement);
         }
+
+        function escapeHtml(html) {
+            return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
 
         function formatAndAppendMessage(sender, message) {
             var chatDisplay = document.getElementById('chat-display');
