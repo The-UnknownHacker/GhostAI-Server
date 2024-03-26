@@ -28,6 +28,7 @@ generation_config = {  # Redefine the generation config
 
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 genai.configure(api_key=api_key)
 app.config['API_KEY'] = api_key  # Set a global variable to assign API key
 app.config['SAFETY_SETTINGS'] = safety_settings_default  # Set the safety settings to the default ones
