@@ -230,6 +230,12 @@
             
             messageElement.innerHTML = '<strong>' + sender + ':</strong><br><br>' + message;
             chatDisplay.appendChild(messageElement);
+
+            if (sender === 'You') {
+                var emptyMessageContainer = document.createElement('div');
+                emptyMessageContainer.innerHTML = '<br>';
+                chatDisplay.appendChild(emptyMessageContainer);
+            }
         }
 
 
@@ -359,7 +365,7 @@
         </div>
     </div>
 
-    <div class="version-number">Version: v2.7.3</div>
+    <div class="version-number">Version: v2.7.4</div>
     <a href="https://github.com/CyberZenDev/GhostAI" target="_blank" class="github-link">View on GitHub</a>
     <a href="/img" class="download-button">
         <img src="{{ url_for('static', filename='img.png') }}" alt="Image Icon" class="img-icon">
