@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Ghost AI</title>
-    
 
     <style>
+        /* Your CSS styles here */
         body {
             background-color: #121212;
             color: #ffffff;
@@ -84,6 +84,7 @@
             background-color: #2C2C2C;
             color: #ffffff;
             box-sizing: border-box;
+            resize: none; /* Prevent textarea resizing */
         }
 
         #user-message::placeholder {
@@ -199,11 +200,52 @@
 
     <script>
         function handleKeyPress(event) {
-            if (event.key === 'Enter') {
+            adjustTextareaHeight(); // Call adjustTextareaHeight() whenever a key is pressed
+            if (event.shiftKey && event.key === 'Enter') {
+                // If Shift + Enter is pressed, add a new line
+                event.preventDefault(); // Prevents the default behavior of Shift + Enter
+                addNewLine();
+            } else if (event.key === 'Enter') {
+                // If Enter is pressed without Shift, send the message
                 event.preventDefault(); // Prevents the default behavior of the Enter key (e.g., submitting forms)
                 sendMessage();
             }
         }
+
+
+        function addNewLine() {
+            var userMessage = document.getElementById('user-message');
+            userMessage.value += '\n'; // Add a new line to the textarea
+            userMessage.scrollTop = userMessage.scrollHeight; // Scroll to the bottom of the textarea
+        }
+
+        function sendMessage() {
+            var userMessage = document.getElementById('user-message').value;
+            appendMessage('You', userMessage);
+            document.getElementById('user-message').value = '';
+
+            axios.post('/send_message', 'user_input=' + userMessage, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+                .then(response => {
+                    var modelResponse = response.data.response;
+                    appendAIResponse(modelResponse);
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                });
+        }
+
+
+        function adjustTextareaHeight() {
+            var textarea = document.getElementById('user-message');
+            textarea.style.height = 'auto'; // Reset the height to auto to calculate the new height
+            textarea.style.height = textarea.scrollHeight + 'px'; // Set the height to the scroll height
+        }
+
+        // Rest of your JavaScript scripts here...
 
         function openSettings() {
             window.location.href = "{{ url_for('settings') }}";
@@ -243,11 +285,9 @@
             }
         }
 
-
         function escapeHtml(html) {
             return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
-
 
         function formatAndAppendMessage(sender, message) {
             var chatDisplay = document.getElementById('chat-display');
@@ -293,26 +333,6 @@
                     messages[i].innerHTML = parseFullStops(message);
                 }
             }
-        }
-
-
-        function sendMessage() {
-            var userMessage = document.getElementById('user-message').value;
-            appendMessage('You', userMessage);
-            document.getElementById('user-message').value = '';
-
-            axios.post('/send_message', 'user_input=' + userMessage, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
-            })
-                .then(response => {
-                    var modelResponse = response.data.response;
-                    appendAIResponse(modelResponse);
-                })
-                .catch(error => {
-                    console.error('Error sending message:', error);
-                });
         }
 
         function extractCode(message) {
@@ -365,7 +385,8 @@
             <!-- Previous messages will be inserted here -->
         </div>
         <div id="user-input">
-            <input type="text" id="user-message" placeholder="Type your message...">
+            <!-- Changed input to textarea -->
+            <textarea id="user-message" rows="2" placeholder="Type your message..." oninput="adjustTextareaHeight()"></textarea>
             <button id="send-button" onclick="sendMessage()">Send</button>
         </div>
     </div>
@@ -375,15 +396,11 @@
     <a href="/img" class="download-button">
         <img src="{{ url_for('static', filename='img.png') }}" alt="Image Icon" class="img-icon">
     </a>
-    
-    
-    
 
-
+    <!-- External script imports -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
-    
 </body>
 
 </html>
