@@ -1,19 +1,45 @@
-from flask import Flask, render_template, request, jsonify, send_file, Response, redirect, url_for
-from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
+from flask import Flask, render_template, request, jsonify, send_file, Response, redirect, url_for, g
+from flask_login import LoginManager, UserMixin, login_user, current_user, logout_user
 from io import BytesIO
 from training_data import convo
 from model_utils import safety_settings_default
 import google.generativeai as genai
-from flask_pymongo import PyMongo
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 import requests
 from PIL import Image, UnidentifiedImageError
 import os
 import io
 import tempfile
+import sqlite3
+
 
 api_key = "AIzaSyABntLwQVD7Ql7GxSHJN1ZPyMpz2yyyFRg"  # Define the API key; needs to be changed if you want to use it
+DATABASE = 'database.db'
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
+def init_db():
+    with app.app_context():
+        db = get_db()
+        cursor = db.cursor()
+        # Check if the users table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users';")
+        table_exists = cursor.fetchone()
+        if not table_exists:
+            # Create the users table if it doesn't exist
+            cursor.execute('''CREATE TABLE users (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                username TEXT NOT NULL,
+                                password TEXT NOT NULL,
+                                pro TEXT
+                            );''')
+            db.commit()
+
+
+
 
 
 API_URL = "https://frightened-dove-turtleneck-shirt.cyclic.app/proxy/https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
@@ -36,39 +62,38 @@ app.secret_key = 'secret_key'
 app.lazy_loading = False
 mongo_url = 'mongodb+srv://ghostai:ghostai@ghostai.4bni5mt.mongodb.net/your_database_name?retryWrites=true&w=majority&appName=GhostAI'
 app.config['MONGO_URI'] = mongo_url
-mongo = PyMongo(app)  # Move this line to the global scope
-client = MongoClient(mongo_url, server_api=ServerApi('1'))
+app.config['API_KEY'] = api_key
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 
 
-with app.app_context():
-    mongo.init_app(app)
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+
+
+
 
 
 class User(UserMixin):
     pass
 
-# Flask-Login setup
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
-invalid_request = 0
 
 @login_manager.user_loader
 def load_user(user_id):
-    user_data = mongo.db.users.find_one({'username': user_id})
-
-    if user_data:
-        user = User()
-        user.id = user_id
-
-        # Check if the user is pro
-        if user_data.get('pro', 'false') == 'true':
-            user.pro = True
-        else:
-            user.pro = False
-
-        return user
-
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM users WHERE username = ?', (user_id,))
+    user = cursor.fetchone()
+    if user:
+        user_obj = User()
+        user_obj.id = user[1]
+        user_obj.pro = user[3] == 'true'
+        return user_obj
     return None
 
 
@@ -137,15 +162,20 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        
+        # Connect to the database
+        db = get_db()
+        cursor = db.cursor()
 
-        # Check if the username and password match an existing user in MongoDB
-        user = mongo.db.users.find_one({'username': username, 'password': password})
+        # Check if the username and password match an existing user in SQLite
+        cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
+        user = cursor.fetchone()
         if user:
             user_obj = User()
             user_obj.id = username
 
             # Check if the user is pro
-            if user.get('pro', 'false') == 'true':
+            if user[2] == 'true':
                 user_obj.pro = True
             else:
                 user_obj.pro = False
@@ -153,31 +183,33 @@ def login():
             login_user(user_obj)
             return redirect(url_for('success'))
         else:
-            return render_template('login.html', error='Incorrect Username Or Password', invalid_request=invalid_request + 1)
-
+            return render_template('login.html', error='Incorrect Username Or Password')
+    
     return render_template('login.html')
-
-
-
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        
+        # Connect to the database
+        db = get_db()
+        cursor = db.cursor()
 
-        # Check if the username is already taken in MongoDB
-        existing_user = mongo.db.users.find_one({'username': username})
+        # Check if the username is already taken in SQLite
+        cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+        existing_user = cursor.fetchone()
         if existing_user:
             return render_template('signup.html', error='Username already taken')
 
-        # Store the user data in MongoDB
-        mongo.db.users.insert_one({'username': username, 'password': password, 'pro': 'false'})
+        # Store the user data in SQLite
+        cursor.execute('INSERT INTO users (username, password, pro) VALUES (?, ?, ?)', (username, password, 'false'))
+        db.commit()
 
         # Redirect to the success page
         return redirect(url_for('signup_success'))
 
-    # Render the signup form template for GET requests
     return render_template('signup.html')
 
 
@@ -255,4 +287,5 @@ def img():
 
 
 if __name__ == '__main__':
+    init_db()
     app.run(host="0.0.0.0", debug=False, port=5000)
