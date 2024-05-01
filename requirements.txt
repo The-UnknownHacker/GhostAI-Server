@@ -1,4 +1,5 @@
 annotated-types==0.6.0
+pillow
 beautifulsoup4==4.12.3
 blinker==1.7.0
 cachetools==5.3.3
@@ -23,7 +24,9 @@ itsdangerous==2.1.2
 Jinja2==3.1.3
 MarkupSafe==2.1.5
 proto-plus==1.23.0
+gunicorn
 protobuf==4.25.3
+sqlite3
 pyasn1==0.5.1
 pyasn1-modules==0.3.0
 pydantic==2.6.3
