@@ -288,4 +288,4 @@ def img():
 
 if __name__ == '__main__':
     init_db()
-    app.run(host="0.0.0.0", debug=False, port=5000)
+    app.run(host="0.0.0.0", debug=False, port=5000, use_reloader=True) # Make it so if any error occurs it should restart
